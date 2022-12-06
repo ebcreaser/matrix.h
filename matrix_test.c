@@ -28,8 +28,8 @@ matrix_test()
 	} else {
 		fputs("matrix_ptr test 2 failed\n", stdout);
 	}
-	set_matrix_index(matrix_ptr, 5, 5, n);
-	if (*get_matrix_index(matrix_ptr, 5, 5) == n) {
+	matrix_set_element(matrix_ptr, 5, 5, n);
+	if (*matrix_get_element(matrix_ptr, 5, 5) == n) {
 		fputs("matrix_ptr test 3 passed\n", stdout);
 	} else {
 		fputs("matrix_ptr test 3 failed\n", stdout);

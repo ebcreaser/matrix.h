@@ -8,7 +8,8 @@ struct matrix
 };
 
 struct matrix *matrix (int rows, int columns);
-float *get_matrix_index(struct matrix *matrix_ptr, int row, int column);
-void set_matrix_index(struct matrix *matrix_ptr, int row, int column, float n);
+void matrix_free(struct matrix *matrix_ptr);
+float *matrix_get_element(struct matrix *matrix_ptr, int row, int column);
+void matrix_set_element(struct matrix *matrix_ptr, int row, int column, float n);
 
 #endif
