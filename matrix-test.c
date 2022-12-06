@@ -5,6 +5,7 @@
 
 static void matrix_test();
 static void matrix_access_test();
+static void matrix_scalar_multiply_test();
 static void matrix_print_test();
 
 static void
@@ -36,7 +37,7 @@ static void
 matrix_access_test()
 {
 	struct matrix *matrix_ptr;
-	int n = 100;
+	float n = 100;
 	int row = 5;
 	int column = 5;
 
@@ -54,10 +55,38 @@ matrix_access_test()
 }
 
 static void
+matrix_scalar_multiply_test()
+{
+	struct matrix *matrix_ptr;
+	float n = 100;
+	float scalar = 5;
+	float product = n * scalar;
+	int size;
+	int i;
+
+	matrix_ptr = matrix(10, 10);
+	if (matrix_ptr == NULL) {
+		return;
+	}
+	size = matrix_size(matrix_ptr);
+	for (i = 0; i < size; ++i) {
+		matrix_ptr->elements[i] = n;
+	}
+	matrix_scalar_multiply(matrix_ptr, scalar);
+	for (i = 0; i < size; ++i) {
+		if (matrix_ptr->elements[1] != product) {
+			fputs("matrix_scalar_multiply_test: test 1 failed\n", stdout);
+			return;
+		}
+	}
+	fputs("matrix_scalar_multiply_test: test 1 passed\n", stdout);
+}
+
+static void
 matrix_print_test()
 {
 	struct matrix *matrix_ptr;
-	int n = 100;
+	float n = 100;
 	int i;
 
 	matrix_ptr = matrix(10, 10);
@@ -77,5 +106,6 @@ matrix_test_all()
 {
 	matrix_test();
 	matrix_access_test();
+	matrix_scalar_multiply_test();
 	matrix_print_test();
 }
