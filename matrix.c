@@ -2,31 +2,26 @@
 #include <stdio.h>
 #include "matrix.h"
 
-struct matrix *
-matrix(int rows, int columns)
+struct matrix
+matrix_construct(int rows, int columns)
 {
-	struct matrix *matrix_ptr;
+	struct matrix matrix;
 
-	matrix_ptr = malloc(sizeof(struct matrix));
-	if (matrix_ptr == NULL) {
-		return NULL;
+	matrix.elements = malloc(rows * columns * sizeof(float));
+	if (matrix.elements == NULL) {
+		return matrix;
 	}
-	matrix_ptr->elements = malloc(rows * columns * sizeof(float));
-	if (matrix_ptr->elements == NULL) {
-		free(matrix_ptr);
-		return NULL;
-	}
-	matrix_ptr->rows = rows;
-	matrix_ptr->columns = columns;
+	matrix.rows = rows;
+	matrix.columns = columns;
+ 	matrix.size = rows * columns;
 
-	return matrix_ptr;
+	return matrix;
 }
 
 void
 matrix_free(struct matrix *matrix_ptr)
 {
 	free(matrix_ptr->elements);
-	free(matrix_ptr);
 }
 
 void
@@ -41,33 +36,30 @@ matrix_get_element(struct matrix *matrix_ptr, int row, int column)
 	return matrix_ptr->elements[matrix_ptr->columns * (row - 1) + column - 1];
 }
 
-int
-matrix_size(struct matrix *matrix_ptr)
+struct matrix
+matrix_scalar_product(struct matrix *matrix_ptr, float scalar)
 {
-	return matrix_ptr->rows * matrix_ptr->columns;
-}
-
-void
-matrix_scalar_multiply(struct matrix *matrix_ptr, float scalar)
-{
+	struct matrix product;
 	int i;
 
-	for (i = 0; i < matrix_size(matrix_ptr); ++i) {
-		matrix_ptr->elements[i] *= scalar;
+	product = matrix_construct(matrix_ptr->rows, matrix_ptr->columns);
+	if (product.elements == NULL) {
+		return product;
+	}
+	for (i = 0; i < product.size; ++i) {
+		product.elements[i] = matrix_ptr->elements[i] * scalar;
 	}
 
-	return;
+	return product;
 }
 
 void
 matrix_print(struct matrix *matrix_ptr)
 {
-	int size;
 	int column;
 	int i;
 
-	size = matrix_size(matrix_ptr);
-	for (i = 0; i < size; ++i) {
+	for (i = 0; i < matrix_ptr->size; ++i) {
 		column = i % matrix_ptr->columns;
 		if (column == 0) {
 			printf("[ %7.3f,", matrix_ptr->elements[i]);
