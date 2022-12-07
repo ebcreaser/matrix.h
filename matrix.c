@@ -3,17 +3,21 @@
 #include "matrix.h"
 
 struct matrix
-matrix_construct(int rows, int columns)
+matrix_construct(float *elements, int rows, int columns)
 {
 	struct matrix matrix;
 
-	matrix.elements = malloc(rows * columns * sizeof(float));
-	if (matrix.elements == NULL) {
-		return matrix;
-	}
 	matrix.rows = rows;
 	matrix.columns = columns;
  	matrix.size = rows * columns;
+	if (elements == NULL) {
+		matrix.elements = malloc(matrix.size * sizeof(float));
+		if (matrix.elements == NULL) {
+			return matrix;
+		}
+	} else {
+		matrix.elements = elements;
+	}
 
 	return matrix;
 }
@@ -42,7 +46,7 @@ matrix_scalar_product(struct matrix *matrix_ptr, float scalar)
 	struct matrix product;
 	int i;
 
-	product = matrix_construct(matrix_ptr->rows, matrix_ptr->columns);
+	product = matrix_construct(NULL, matrix_ptr->rows, matrix_ptr->columns);
 	if (product.elements == NULL) {
 		return product;
 	}
@@ -51,6 +55,36 @@ matrix_scalar_product(struct matrix *matrix_ptr, float scalar)
 	}
 
 	return product;
+}
+
+struct matrix
+matrix_product(struct matrix *A, struct matrix *B)
+{
+	struct matrix product;
+	int i, j, k;
+	int l = 0;
+
+	if (A->columns != B->rows) {
+		product.elements = NULL;
+		return product;
+	}
+	product = matrix_construct(NULL, A->rows, B->columns);
+	if (product.elements == NULL) {
+		return product;
+	}
+	for (i = 0; i < A->rows; ++i) {
+		for (j = 0; j < B->columns; ++j) {
+			for (k = 0; k < A->columns; ++k) {
+				product.elements[l] +=
+					A->elements[i * A->columns + k] *
+					B->elements[k * B->columns + j]; 
+			}
+			++l;
+		}
+	}
+
+	return product;
+
 }
 
 void
