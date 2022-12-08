@@ -40,6 +40,44 @@ matrix_get_element(struct matrix *matrix_ptr, int row, int column)
 	return matrix_ptr->elements[matrix_ptr->columns * (row - 1) + column - 1];
 }
 
+int
+matrix_is_equal(struct matrix *A, struct matrix *B)
+{
+	int i;
+
+	if (A->rows != B-> rows || A->columns != B->columns) {
+		return 0;
+	}
+	for (i = 0; i < A->size; ++i) {
+		if (A->elements[i] != B->elements[i]) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+struct matrix
+matrix_sum(struct matrix *A, struct matrix *B)
+{
+	struct matrix sum;
+	int i;
+
+	if (A->rows != B->rows || A->columns != B->columns) {
+		sum.elements = NULL;
+		return sum;
+	}
+	sum = matrix_construct(NULL, A->rows, A->columns);
+	if (sum.elements == NULL) {
+		return sum;
+	}
+	for (i = 0; i < sum.size; ++i) {
+		sum.elements[i] = A->elements[i] + B->elements[i];
+	}
+
+	return sum;
+}
+
 struct matrix
 matrix_scalar_product(struct matrix *matrix_ptr, float scalar)
 {
@@ -62,7 +100,6 @@ matrix_product(struct matrix *A, struct matrix *B)
 {
 	struct matrix product;
 	int i, j, k;
-	int l = 0;
 
 	if (A->columns != B->rows) {
 		product.elements = NULL;
@@ -75,11 +112,10 @@ matrix_product(struct matrix *A, struct matrix *B)
 	for (i = 0; i < A->rows; ++i) {
 		for (j = 0; j < B->columns; ++j) {
 			for (k = 0; k < A->columns; ++k) {
-				product.elements[l] +=
+				product.elements[i * product.columns + j] +=
 					A->elements[i * A->columns + k] *
 					B->elements[k * B->columns + j]; 
 			}
-			++l;
 		}
 	}
 
