@@ -2,74 +2,68 @@
 #include <stdio.h>
 #include "matrix.h"
 
-struct matrix
-matrix_construct(float *elements, int rows, int columns)
+void
+matrix_construct(struct matrix *m_ptr, int rows, int cols)
 {
-	struct matrix matrix;
-
-	matrix.rows = rows;
-	matrix.columns = columns;
- 	matrix.size = rows * columns;
-	if (elements == NULL) {
-		matrix.elements = calloc(matrix.size, sizeof(float));
-		if (matrix.elements == NULL) {
-			return matrix;
-		}
-	} else {
-		matrix.elements = elements;
-	}
-
-	return matrix;
+	m_ptr->rows = rows;
+	m_ptr->columns = cols;
+ 	m_ptr->size = rows * cols;
 }
 
-struct matrix
-matrix_construct_identity(int rows)
+struct matrix *
+matrix_get_unit(int rows)
 {
-	struct matrix matrix;
+	struct matrix *m_ptr;
 	int i;
 
-	matrix.rows = rows;
-	matrix.columns = rows;
-	matrix.size = rows * rows;
-	matrix.elements = malloc(matrix.size * sizeof(float));
-	if (matrix.elements == NULL) {
-		return matrix;
+	m_ptr = malloc(sizeof(struct matrix));
+	if (m_ptr == NULL) {
+		return NULL;
 	}
-	for (i = 0; i < matrix.size; ++i) {
-		matrix.elements[i] = (i / rows == i % rows);
+	m_ptr->rows = rows;
+	m_ptr->columns = rows;
+	m_ptr->size = rows * rows;
+	m_ptr->elements = malloc(m_ptr->size * sizeof(float));
+	if (m_ptr->elements == NULL) {
+		free(m_ptr);
+		return NULL;
+	}
+	for (i = 0; i < m_ptr->size; ++i) {
+		m_ptr->elements[i] = (i / rows == i % rows);
 	}
 
-	return matrix;
+	return m_ptr;
 }
 
 void
-matrix_free(struct matrix *matrix_ptr)
+matrix_free(struct matrix *m_ptr)
 {
-	free(matrix_ptr->elements);
+	free(m_ptr->elements);
+	free(m_ptr);
 }
 
 void
-matrix_set_element(struct matrix *matrix_ptr, int row, int column, float n)
+matrix_set_element(struct matrix *m_ptr, int row, int col, float n)
 {
-	matrix_ptr->elements[matrix_ptr->columns * (row - 1) + column - 1] = n;
+	m_ptr->elements[m_ptr->columns * (row - 1) + col - 1] = n;
 }
 
 float
-matrix_get_element(struct matrix *matrix_ptr, int row, int column)
+matrix_get_element(struct matrix *m_ptr, int row, int col)
 {
-	return matrix_ptr->elements[matrix_ptr->columns * (row - 1) + column - 1];
+	return m_ptr->elements[m_ptr->columns * (row - 1) + col - 1];
 }
 
 int
-matrix_is_equal(struct matrix *A, struct matrix *B)
+matrix_is_equal(struct matrix *A_ptr, struct matrix *B_ptr)
 {
 	int i;
 
-	if (A->rows != B-> rows || A->columns != B->columns) {
+	if (A_ptr->rows != B_ptr-> rows || A_ptr->columns != B_ptr->columns) {
 		return 0;
 	}
-	for (i = 0; i < A->size; ++i) {
-		if (A->elements[i] != B->elements[i]) {
+	for (i = 0; i < A_ptr->size; ++i) {
+		if (A_ptr->elements[i] != B_ptr->elements[i]) {
 			return 0;
 		}
 	}
@@ -77,86 +71,102 @@ matrix_is_equal(struct matrix *A, struct matrix *B)
 	return 1;
 }
 
-struct matrix
-matrix_sum(struct matrix *A, struct matrix *B)
+struct matrix *
+matrix_sum(struct matrix *A_ptr, struct matrix *B_ptr)
 {
-	struct matrix sum;
+	struct matrix *s_ptr;
 	int i;
 
-	if (A->rows != B->rows || A->columns != B->columns) {
-		sum.elements = NULL;
-		return sum;
+	s_ptr = malloc(sizeof(struct matrix));
+	if (s_ptr == NULL) {
+		return NULL;
 	}
-	sum = matrix_construct(NULL, A->rows, A->columns);
-	if (sum.elements == NULL) {
-		return sum;
+	if (A_ptr->rows != B_ptr->rows || A_ptr->columns != B_ptr->columns) {
+		free(s_ptr);
+		return NULL;
 	}
-	for (i = 0; i < sum.size; ++i) {
-		sum.elements[i] = A->elements[i] + B->elements[i];
+	matrix_construct(s_ptr, A_ptr->rows, A_ptr->columns);
+	s_ptr->elements = malloc(s_ptr->size * sizeof(float));
+	if (s_ptr->elements == NULL) {
+		free(s_ptr);
+		return NULL;
+	}
+	for (i = 0; i < s_ptr->size; ++i) {
+		s_ptr->elements[i] = A_ptr->elements[i] + B_ptr->elements[i];
 	}
 
-	return sum;
+	return s_ptr;
 }
 
-struct matrix
-matrix_scalar_product(struct matrix *matrix_ptr, float scalar)
+struct matrix *
+matrix_scalar_product(struct matrix *m_ptr, float scalar)
 {
-	struct matrix product;
+	struct matrix *p_ptr;
 	int i;
 
-	product = matrix_construct(NULL, matrix_ptr->rows, matrix_ptr->columns);
-	if (product.elements == NULL) {
-		return product;
+	p_ptr = malloc(sizeof(struct matrix));
+	if (p_ptr == NULL) {
+		return p_ptr;
 	}
-	for (i = 0; i < product.size; ++i) {
-		product.elements[i] = matrix_ptr->elements[i] * scalar;
+	p_ptr->elements = malloc(m_ptr->size * sizeof(float));
+	if (p_ptr->elements == NULL) {
+		return p_ptr;
+	}
+	matrix_construct(p_ptr, m_ptr->rows, m_ptr->columns);
+	for (i = 0; i < p_ptr->size; ++i) {
+		p_ptr->elements[i] = m_ptr->elements[i] * scalar;
 	}
 
-	return product;
+	return p_ptr;
 }
 
-struct matrix
-matrix_product(struct matrix *A, struct matrix *B)
+struct matrix *
+matrix_product(struct matrix *A_ptr, struct matrix *B_ptr)
 {
-	struct matrix product;
+	struct matrix *p_ptr;
 	int i, j, k;
 
-	if (A->columns != B->rows) {
-		product.elements = NULL;
-		return product;
+	p_ptr = malloc(sizeof(struct matrix));
+	if (p_ptr == NULL) {
+		return NULL;
 	}
-	product = matrix_construct(NULL, A->rows, B->columns);
-	if (product.elements == NULL) {
-		return product;
+	if (A_ptr->columns != B_ptr->rows) {
+		free(p_ptr);
+		return NULL;
 	}
-	for (i = 0; i < A->rows; ++i) {
-		for (j = 0; j < B->columns; ++j) {
-			for (k = 0; k < A->columns; ++k) {
-				product.elements[i * product.columns + j] +=
-					A->elements[i * A->columns + k] *
-					B->elements[k * B->columns + j]; 
+	matrix_construct(p_ptr, A_ptr->rows, B_ptr->columns);
+	p_ptr->elements = malloc(p_ptr->size * sizeof(float));
+	if (p_ptr->elements == NULL) {
+		free(p_ptr);
+		return NULL;
+	}
+	for (i = 0; i < A_ptr->rows; ++i) {
+		for (j = 0; j < B_ptr->columns; ++j) {
+			for (k = 0; k < A_ptr->columns; ++k) {
+				p_ptr->elements[i * p_ptr->columns + j] +=
+					A_ptr->elements[i * A_ptr->columns + k] *
+					B_ptr->elements[k * B_ptr->columns + j]; 
 			}
 		}
 	}
 
-	return product;
-
+	return p_ptr;
 }
 
 void
-matrix_print(struct matrix *matrix_ptr)
+matrix_print(struct matrix *m_ptr)
 {
 	int column;
 	int i;
 
-	for (i = 0; i < matrix_ptr->size; ++i) {
-		column = i % matrix_ptr->columns;
+	for (i = 0; i < m_ptr->size; ++i) {
+		column = i % m_ptr->columns;
 		if (column == 0) {
-			printf("[ %7.3f,", matrix_ptr->elements[i]);
-		} else if (column == matrix_ptr->columns - 1) {
-			printf(" %7.3f ]\n", matrix_ptr->elements[i]);
+			printf("[ %7.3f,", m_ptr->elements[i]);
+		} else if (column == m_ptr->columns - 1) {
+			printf(" %7.3f ]\n", m_ptr->elements[i]);
 		} else {
-			printf(" %7.3f, ", matrix_ptr->elements[i]);
+			printf(" %7.3f, ", m_ptr->elements[i]);
 		}
 	}
 }

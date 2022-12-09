@@ -9,15 +9,15 @@ struct matrix
 	float *elements;
 };
 
-struct matrix matrix_construct(float *elements, int rows, int columns);
-struct matrix matrix_construct_identity(int rows);
-void matrix_free(struct matrix *matrix_ptr);
-float matrix_get_element(struct matrix *matrix_ptr, int row, int column);
-void matrix_set_element(struct matrix *matrix_ptr, int row, int column, float n);
+void matrix_construct(struct matrix *m_ptr, int rows, int columns);
+struct matrix *matrix_get_unit(int rows);
+void matrix_free(struct matrix *m_ptr);
+float matrix_get_element(struct matrix *m_ptr, int row, int col);
+void matrix_set_element(struct matrix *m_ptr, int row, int col, float n);
 int matrix_is_equal(struct matrix *A, struct matrix *B);
-struct matrix matrix_sum(struct matrix *A, struct matrix *B);
-struct matrix matrix_scalar_product(struct matrix *matrix_ptr, float scalar);
-struct matrix matrix_product(struct matrix *A, struct matrix *B);
-void matrix_print(struct matrix *matrix_ptr);
+struct matrix *matrix_sum(struct matrix *A, struct matrix *B);
+struct matrix *matrix_scalar_product(struct matrix *m_ptr, float scalar);
+struct matrix *matrix_product(struct matrix *A, struct matrix *B);
+void matrix_print(struct matrix *m_ptr);
 
 #endif
