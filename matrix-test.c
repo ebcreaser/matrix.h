@@ -5,7 +5,6 @@
 
 static void matrix_construct_test();
 static void matrix_get_unit_test();
-static void matrix_access_test();
 static void matrix_is_equal_test();
 static void matrix_sum_test();
 static void matrix_scalar_product_test();
@@ -21,8 +20,7 @@ matrix_construct_test()
 	int columns = 20;
 	int size = rows * columns;
 
-	matrix_construct(&matrix, rows, columns);
-	matrix.elements = elements;
+	matrix_construct(&matrix, elements, rows, columns);
 	if (matrix.elements == elements) {
 		fputs("matrix_construct_test: test 1 passed\n", stdout);
 	} else {
@@ -58,8 +56,7 @@ matrix_get_unit_test()
 		7, 8, 9
 	};
 
-	matrix_construct(&A, 3, 3);
-	A.elements = elements;
+	matrix_construct(&A, elements, 3, 3);
 	u_ptr = matrix_get_unit(A.rows);
 	if (u_ptr == NULL) {
 		fputs("matrix_get_unit_test: failed to allocate memory\n", stdout);
@@ -81,25 +78,6 @@ matrix_get_unit_test()
 }
 
 static void
-matrix_access_test()
-{
-	struct matrix matrix;
-	float elements[100];
-	float n = 100;
-	int row = 5;
-	int column = 5;
-
-	matrix_construct(&matrix, 10, 10);
-	matrix.elements = elements;
-	matrix_set_element(&matrix, row, column, n);
-	if (matrix_get_element(&matrix, row, column) == n) {
-		fputs("matrix_access_test: test 1 passed\n", stdout);
-	} else {
-		fputs("matrix_access_test: test 1 failed\n", stdout);
-	}
-}
-
-static void
 matrix_is_equal_test()
 {
 	struct matrix A;
@@ -109,10 +87,8 @@ matrix_is_equal_test()
 		1, 2, 3,
 	};
 	
-	matrix_construct(&A, 1, 3);
-	A.elements = elements;
-	matrix_construct(&B, 1, 3);
-	B.elements = elements;
+	matrix_construct(&A, elements, 1, 3);
+	matrix_construct(&B, elements, 1, 3);
 	if (matrix_is_equal(&A, &B)) {
 		fputs("matrix_is_equal_test: test 1 passed\n", stdout);
 	} else {
@@ -130,7 +106,7 @@ matrix_scalar_product_test()
 	float scalar = 5;
 	int i;
 
-	matrix_construct(&matrix, 10, 10);
+	matrix_construct(&matrix, elements, 10, 10);
 	matrix.elements = elements;
 	for (i = 0; i < matrix.size; ++i) {
 		matrix.elements[i] = n;
@@ -178,12 +154,9 @@ matrix_sum_test()
 		3, 3, 3
 	};
 
-	matrix_construct(&A, 3, 3);
-	A.elements = A_elements;
-	matrix_construct(&B, 3, 3);
-	B.elements = B_elements;
-	matrix_construct(&expected, 3, 3);
-	expected.elements = expected_elements;
+	matrix_construct(&A, A_elements, 3, 3);
+	matrix_construct(&B, B_elements, 3, 3);
+	matrix_construct(&expected, expected_elements, 3, 3);
 	s_ptr = matrix_sum(&A, &B);
 	if (matrix_is_equal(&expected, s_ptr)) {
 		fputs("matrix_sum_test: test 1 passed\n", stderr);
@@ -220,12 +193,9 @@ matrix_product_test()
 		12, 12, 12, 12
 	};
 
-	matrix_construct(&A, 3, 2);
-	A.elements = A_elements;
-	matrix_construct(&B, 2, 4);
-	B.elements = B_elements;
-	matrix_construct(&expected, 3, 4);
-	expected.elements = expected_elements;
+	matrix_construct(&A, A_elements, 3, 2);
+	matrix_construct(&B, B_elements, 2, 4);
+	matrix_construct(&expected, expected_elements, 3, 4);
 	p_ptr = matrix_product(&A, &B);
 	if (matrix_is_equal(p_ptr, &expected)) {
 		fputs("matrix_product_test: test 1 passed\n", stdout);
@@ -248,8 +218,7 @@ matrix_print_test()
 		3, 4
 	};
 
-	matrix_construct(&matrix, 2, 2);
-	matrix.elements = elements;
+	matrix_construct(&matrix, elements, 2, 2);
 	fputs("matrix_print_test:\n", stdout);
 	matrix_print(&matrix);
 }
@@ -259,7 +228,6 @@ matrix_test_all()
 {
 	matrix_construct_test();
 	matrix_get_unit_test();
-	matrix_access_test();
 	matrix_is_equal_test();
 	matrix_sum_test();
 	matrix_scalar_product_test();

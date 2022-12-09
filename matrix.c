@@ -3,8 +3,9 @@
 #include "matrix.h"
 
 void
-matrix_construct(struct matrix *m_ptr, int rows, int cols)
+matrix_construct(struct matrix *m_ptr, float *elements, int rows, int cols)
 {
+	m_ptr->elements = elements;
 	m_ptr->rows = rows;
 	m_ptr->columns = cols;
  	m_ptr->size = rows * cols;
@@ -29,6 +30,7 @@ matrix_get_unit(int rows)
 		return NULL;
 	}
 	for (i = 0; i < m_ptr->size; ++i) {
+		/* 1 if row and column are equal, 0 otherwise */
 		m_ptr->elements[i] = (i / rows == i % rows);
 	}
 
@@ -40,18 +42,6 @@ matrix_free(struct matrix *m_ptr)
 {
 	free(m_ptr->elements);
 	free(m_ptr);
-}
-
-void
-matrix_set_element(struct matrix *m_ptr, int row, int col, float n)
-{
-	m_ptr->elements[m_ptr->columns * (row - 1) + col - 1] = n;
-}
-
-float
-matrix_get_element(struct matrix *m_ptr, int row, int col)
-{
-	return m_ptr->elements[m_ptr->columns * (row - 1) + col - 1];
 }
 
 int
@@ -85,7 +75,7 @@ matrix_sum(struct matrix *A_ptr, struct matrix *B_ptr)
 		free(s_ptr);
 		return NULL;
 	}
-	matrix_construct(s_ptr, A_ptr->rows, A_ptr->columns);
+	matrix_construct(s_ptr, NULL, A_ptr->rows, A_ptr->columns);
 	s_ptr->elements = malloc(s_ptr->size * sizeof(float));
 	if (s_ptr->elements == NULL) {
 		free(s_ptr);
@@ -108,11 +98,12 @@ matrix_scalar_product(struct matrix *m_ptr, float scalar)
 	if (p_ptr == NULL) {
 		return p_ptr;
 	}
+	matrix_construct(p_ptr, NULL, m_ptr->rows, m_ptr->columns);
 	p_ptr->elements = malloc(m_ptr->size * sizeof(float));
 	if (p_ptr->elements == NULL) {
-		return p_ptr;
+		free(p_ptr);
+		return NULL;
 	}
-	matrix_construct(p_ptr, m_ptr->rows, m_ptr->columns);
 	for (i = 0; i < p_ptr->size; ++i) {
 		p_ptr->elements[i] = m_ptr->elements[i] * scalar;
 	}
@@ -134,7 +125,7 @@ matrix_product(struct matrix *A_ptr, struct matrix *B_ptr)
 		free(p_ptr);
 		return NULL;
 	}
-	matrix_construct(p_ptr, A_ptr->rows, B_ptr->columns);
+	matrix_construct(p_ptr, NULL, A_ptr->rows, B_ptr->columns);
 	p_ptr->elements = malloc(p_ptr->size * sizeof(float));
 	if (p_ptr->elements == NULL) {
 		free(p_ptr);
