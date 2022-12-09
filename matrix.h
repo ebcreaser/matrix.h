@@ -10,6 +10,7 @@ struct matrix
 };
 
 struct matrix matrix_construct(float *elements, int rows, int columns);
+struct matrix matrix_construct_identity(int rows);
 void matrix_free(struct matrix *matrix_ptr);
 float matrix_get_element(struct matrix *matrix_ptr, int row, int column);
 void matrix_set_element(struct matrix *matrix_ptr, int row, int column, float n);

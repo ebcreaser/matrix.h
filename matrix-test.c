@@ -3,7 +3,8 @@
 #include "matrix.h"
 #include "matrix-test.h"
 
-static void matrix_constuct_test();
+static void matrix_construct_test();
+static void matrix_construct_identity_test();
 static void matrix_access_test();
 static void matrix_is_equal_test();
 static void matrix_sum_test();
@@ -12,7 +13,7 @@ static void matrix_product_test();
 static void matrix_print_test();
 
 static void
-matrix_constuct_test()
+matrix_construct_test()
 {
 	struct matrix matrix;
 	float elements[200] = {0};
@@ -41,6 +42,40 @@ matrix_constuct_test()
 	} else {
 		fputs("matrix_construct_test: test 4 failed\n", stdout);
 	}
+}
+
+static void
+matrix_construct_identity_test()
+{
+	struct matrix A;
+	struct matrix I;
+	struct matrix product;
+	float elements[] =
+	{
+		1, 2, 3,
+		4, 5, 6,
+		7, 8, 9
+	};
+
+	A = matrix_construct(elements, 3, 3);
+	I = matrix_construct_identity(A.rows);
+	if (I.elements == NULL) {
+		fputs("matrix_construct_identity_test: failed to allocate memory\n", stdout);
+		return;
+	}
+	product = matrix_product(&I, &A);
+	if (product.elements == NULL) {
+		fputs("matrix_construct_identity_test: failed to allocate memory\n", stdout);
+		matrix_free(&I);
+		return;
+	}
+	if (matrix_is_equal(&A, &product)) {
+		fputs("matrix_construct_identity_test: test 1 passed\n", stdout);
+	} else {
+		fputs("matrix_construct_identity_test: test 1 failed\n", stdout);
+	}
+	matrix_free(&I);
+	matrix_free(&product);
 }
 
 static void
@@ -219,7 +254,8 @@ matrix_print_test()
 void
 matrix_test_all()
 {
-	matrix_constuct_test();
+	matrix_construct_test();
+	matrix_construct_identity_test();
 	matrix_access_test();
 	matrix_is_equal_test();
 	matrix_sum_test();

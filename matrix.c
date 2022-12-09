@@ -11,12 +11,32 @@ matrix_construct(float *elements, int rows, int columns)
 	matrix.columns = columns;
  	matrix.size = rows * columns;
 	if (elements == NULL) {
-		matrix.elements = malloc(matrix.size * sizeof(float));
+		matrix.elements = calloc(matrix.size, sizeof(float));
 		if (matrix.elements == NULL) {
 			return matrix;
 		}
 	} else {
 		matrix.elements = elements;
+	}
+
+	return matrix;
+}
+
+struct matrix
+matrix_construct_identity(int rows)
+{
+	struct matrix matrix;
+	int i;
+
+	matrix.rows = rows;
+	matrix.columns = rows;
+	matrix.size = rows * rows;
+	matrix.elements = malloc(matrix.size * sizeof(float));
+	if (matrix.elements == NULL) {
+		return matrix;
+	}
+	for (i = 0; i < matrix.size; ++i) {
+		matrix.elements[i] = (i / rows == i % rows);
 	}
 
 	return matrix;
